@@ -1,0 +1,46 @@
+@import "../../variables";
+
+.container {
+  background-color: $background-primary;
+  padding: 20px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  & > :first-child {
+    font-size: 24px;
+    font-weight: 600;
+    color: $primary-500;
+  }
+}
+
+.flightInfo {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 20px;
+  row-gap: 10px;
+}
+
+.flightInfoItem {
+  margin: 0;
+
+  & > * {
+    margin: 0;
+  }
+
+  & > :first-child {
+    color: $secondary-content;
+  }
+
+  & > :last-child {
+    color: $primary-content;
+    font-size: 14px;
+  }
+}
