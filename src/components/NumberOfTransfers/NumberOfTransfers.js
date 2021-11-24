@@ -7,8 +7,10 @@ const NumberOfTransfers = ({
   const filterListItemComponent = NumberOfTransfers.map(item => {
     return (
       <li className={style.filterListItem} key={item.id}>
-        <input type="checkbox" checked={item.isChecked} onChange={() => handleChange(item.id)}/>
-        <span>{item.title}</span>
+        <label>
+          <input type="checkbox" checked={item.isChecked} onChange={() => handleChange(item.id)}/>
+          <span>{item.title}</span>
+        </label>
       </li>
     )
   })

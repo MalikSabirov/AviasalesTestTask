@@ -97,40 +97,33 @@ function App() {
     // }
     for (let i = 0; i < numberOfTransfer.length; i++) {
       if(numberOfTransfer[i].isChecked) {
-        if (i === 0) {
-          return sortedTickets
-        }
-
-        if (i === 1) {
-          return sortedTickets.filter(ticket => {
-            return (
-              ticket.segments[0].stops.length === 0 && ticket.segments[1].stops.length === 0
-            )
-          })
-        }
-
-        if (i === 2) {
-          return sortedTickets.filter(ticket => {
-            return (
-              ticket.segments[0].stops.length === 1 && ticket.segments[1].stops.length === 1
-            )
-          })
-        }
-
-        if (i === 3) {
-          return sortedTickets.filter(ticket => {
-            return (
-              ticket.segments[0].stops.length === 2 && ticket.segments[1].stops.length === 2
-            )
-          })
-        }
-
-        if (i === 4) {
-          return sortedTickets.filter(ticket => {
-            return (
-              ticket.segments[0].stops.length === 3 && ticket.segments[1].stops.length === 3
-            )
-          })
+        switch (i) {
+          case 1:
+            return sortedTickets.filter(ticket => {
+              return (
+                ticket.segments[0].stops.length === 0 && ticket.segments[1].stops.length === 0
+              )
+            })
+          case 2:
+            return sortedTickets.filter(ticket => {
+              return (
+                ticket.segments[0].stops.length === 1 && ticket.segments[1].stops.length === 1
+              )
+            })
+          case 3:
+            return sortedTickets.filter(ticket => {
+              return (
+                ticket.segments[0].stops.length === 2 && ticket.segments[1].stops.length === 2
+              )
+            })
+          case 4:
+            return sortedTickets.filter(ticket => {
+              return (
+                ticket.segments[0].stops.length === 3 && ticket.segments[1].stops.length === 3
+              )
+            })
+          default: 
+            return sortedTickets
         }
       }
     }
@@ -142,8 +135,6 @@ function App() {
   const tabs = [priceSortedTickets, durationSortedTickets]
   const [activeTab, setActiveTab] = useState(0)
   const [showedTickets, setShowedTickets] = useState(5)
-
-
 
   useEffect(() => {
     fetch("https://front-test.beta.aviasales.ru/search")
@@ -179,7 +170,7 @@ function App() {
   const handleChange = (id) => {
     setNumberOfTransfer(prevState => {
       return prevState.map(item => {
-        if (item.id === id) {
+        if (item.id === id && !item.isChecked) {
           return {
             ...item,
             isChecked: !item.isChecked

@@ -20,7 +20,7 @@
   padding: 0;
 }
 
-.filterListItem {
+.filterListItem > * {
   display: flex;
   align-items: center;
 
