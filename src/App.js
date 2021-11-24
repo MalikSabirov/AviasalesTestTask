@@ -143,12 +143,14 @@ function App() {
         setSearchID(data.searchId)
     })
   }, [])
+  // получить searchID
 
   useEffect(() => {
     fetch(`https://front-test.beta.aviasales.ru/tickets?searchId=${searchID}`)
       .then(response => response.json())
       .then(data => setTickets(data.tickets))
   }, [searchID])
+  //zapros ticketы
 
   const changeTab = (num) => {
     let index = num - 1
@@ -200,7 +202,7 @@ function App() {
     const flightFromTime = new Date(flightFrom.date)
     const flightToArrivalTime = getArrivalTime(flightToTime, flightTo.duration)
     const flightFromArrivalTime = getArrivalTime(flightFromTime, flightFrom.duration)
-
+    // massive otfarmatirovannyh dannyh doljen vozvrashat'
 
     const formattedToStartTime = `${ getFormatedTime( flightToTime.getHours() ) }:${ getFormatedTime( flightToTime.getMinutes() ) }`
     const formattedFromStartTime = `${ getFormatedTime( flightFromTime.getHours() ) }:${ getFormatedTime( flightFromTime.getMinutes() ) }`
@@ -238,7 +240,7 @@ function App() {
       <img className="logo" src={iLogo} alt="logo"/>
       <div className="container">
         <NumberOfTransfers 
-          NumberOfTransfers={numberOfTransfer}
+          numberOfTransfers={numberOfTransfer}
           handleChange={handleChange}
         />
 

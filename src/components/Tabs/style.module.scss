@@ -26,3 +26,16 @@
     border-bottom-right-radius: 10px;
   }
 }
+
+.tabsItem {
+  box-sizing: border-box;
+  padding: 15px;
+  border: none;
+  background-color: $background-primary;
+  cursor: pointer;
+}
+
+.tabsItemActive {
+  background-color: $primary-500;
+  color: $background-primary;
+}

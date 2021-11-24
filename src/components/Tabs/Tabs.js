@@ -1,27 +1,33 @@
 import style from './style.module.scss'
 
+const TabComponent = ( {title, onClick, tabs, className} ) => {
+  return (
+    <button onClick={onClick} className={className}>
+      {title}
+      {tabs}
+    </button>
+  )
+}
+
 const Tabs = ({
   tabsData,
-  tabs,
   changeTab
 }) => {
 
-  const tabsComponent = tabsData.map(item => {
-    return (
-      <button 
-        key={item.id} 
-        onClick={() => changeTab(item.id)}
-        className={`tabs-item ${item.isActive ? "activeTab" : ""}`}
-      >
-        {item.title}
-        {tabs}
-      </button>
-    )
-  })
-
   return(
     <div className={style.container}>
-      {tabsComponent}
+      {tabsData.map(item => {
+        const tabClasses = [style.tabsItem, item.isActive ? style.tabsItemActive : ''].join(" ")
+
+        return (
+          <TabComponent
+            key={item.id}
+            onClick={() => changeTab(item.id)}
+            title={item.title}
+            className={tabClasses}
+          />
+        )
+      })}
     </div>
   )
 }

@@ -1,26 +1,32 @@
 import style from './style.module.scss'
 
-const NumberOfTransfers = ({
-  NumberOfTransfers, 
-  handleChange
-}) => {
-  const filterListItemComponent = NumberOfTransfers.map(item => {
-    return (
-      <li className={style.filterListItem} key={item.id}>
-        <label>
-          <input type="checkbox" checked={item.isChecked} onChange={() => handleChange(item.id)}/>
-          <span>{item.title}</span>
-        </label>
-      </li>
-    )
-  })
+const FilterCheckbox = ({ isChecked, title, onChange }) => {
+  return (
+    <label>
+      <input type="checkbox" checked={isChecked} onChange={onChange} />
+      <span>{title}</span>
+    </label>
+  )
+}
 
+const NumberOfTransfers = ({ numberOfTransfers, handleChange }) => {
   return(
     <div className={style.container}>
       <p className={style.title}>Количество пересадок</p>
 
       <ul className={style.filterList}>
-        {filterListItemComponent}
+        {numberOfTransfers.map(item => {
+          return (
+            <li className={style.filterListItem} key={item.id}>
+              <FilterCheckbox 
+                id={item.id}
+                title={item.title}
+                isChecked={item.isChecked}
+                onChange={() => handleChange(item.id)}
+              />
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
