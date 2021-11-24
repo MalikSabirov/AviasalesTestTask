@@ -1,19 +1,5 @@
 import style from './style.module.scss'
 
-const getStopsText = (stops) => {
-  if (stops < 0) {
-    return ""
-  } else if (stops === 0) {
-    return "Без пересадок"
-  } else if (stops === 1) {
-    return "1 пересадка"
-  } else if (stops >= 2 && stops <= 4) {
-    return `${stops} пересадки`
-  } else {
-    return `${stops} пересадок`
-  }
-}
-
 const Ticket = ({
   imgUrl,
   price,
@@ -34,9 +20,6 @@ const Ticket = ({
   flightFromStops,
   flightFromStopsAmount,
 }) => {
-  let flightToStopsAmountText = getStopsText(flightToStopsAmount)
-  let flightFromStopsAmountText = getStopsText(flightFromStopsAmount)
-// transformation in one components
   return (
     <div className={style.container}>
       <div className={style.header}>
@@ -57,7 +40,7 @@ const Ticket = ({
         </dl>
 
         <dl className={style.flightInfoItem}>
-          <dt>{flightToStopsAmountText}</dt>
+          <dt>{flightToStopsAmount}</dt>
           <dd>{flightToStops}</dd>
         </dl>
 
@@ -72,7 +55,7 @@ const Ticket = ({
         </dl>
 
         <dl className={style.flightInfoItem}>
-          <dt>{flightFromStopsAmountText}</dt>
+          <dt>{flightFromStopsAmount}</dt>
           <dd>{flightFromStops}</dd>
         </dl>
       </div>

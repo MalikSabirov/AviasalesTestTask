@@ -34,8 +34,41 @@ const getArrivalTime = (startDate, duration) => {
   return `${arrivalHours}:${arrivalMinutes}`
 }
 
+const getStopsText = (stops) => {
+  if (stops < 0) {
+    return ""
+  } else if (stops === 0) {
+    return "Без пересадок"
+  } else if (stops === 1) {
+    return "1 пересадка"
+  } else if (stops >= 2 && stops <= 4) {
+    return `${stops} пересадки`
+  } else {
+    return `${stops} пересадок`
+  }
+}
+
+const fetchingSearchId = (setMethod) => {
+  fetch("https://front-test.beta.aviasales.ru/search")
+  .then((response) => response.json())
+  .then((data) => data.searchId)
+  .then((searchId) => {
+    setMethod(searchId);
+  });
+}
+
+const fetchingTickets = (searchParam, setMethod) => {
+  if(searchParam !== undefined) {
+    fetch(
+      `https://front-test.beta.aviasales.ru/tickets?searchId=${searchParam}`
+    )
+      .then((response) => response.json())
+      .then((data) => setMethod(data.tickets));
+  }
+}
+
 function App() {
-  const [searchID, setSearchID] = useState()
+  const [searchId, setSearchId] = useState()
   const [tickets, setTickets] = useState([])
 
   const [tabsData, setTabsData] = useState([
@@ -82,19 +115,7 @@ function App() {
   let priceSortedTickets = tickets.slice().sort((a, b) => a.price - b.price)
   let durationSortedTickets = tickets.slice().sort((a, b) => a.segments[0].duration - b.segments[0].duration)
 
-  // priceSortedTickets = priceSortedTickets.filter(item => item.segments[0].stops.length === 0 && item.segments[1].stops.length === 0)
-  // priceSortedTickets = priceSortedTickets.filter(item => item.segments[0].stops.length === 1)
-  // priceSortedTickets = priceSortedTickets.filter(item => item.segments[0].stops.length === 0 && item.segments[0].stops.length === 0)
-
   const filterStopsAmount = (sortedTickets) => {
-    // let filteredTickets = []
-    // for (let i = 1; i < numberOfTransfer.length; i++) {
-    //   if (numberOfTransfer[i].isChecked) {
-    //     if(numberOfTransfer[i].isChecked === 0) {
-    //       filteredTickets = sortedTickets.slice().filter(item => item.segments[0].stops.length === 0 && item.segments[1].stops.length === 0)
-    //     }
-    //   }
-    // }
     for (let i = 0; i < numberOfTransfer.length; i++) {
       if(numberOfTransfer[i].isChecked) {
         switch (i) {
@@ -137,20 +158,12 @@ function App() {
   const [showedTickets, setShowedTickets] = useState(5)
 
   useEffect(() => {
-    fetch("https://front-test.beta.aviasales.ru/search")
-      .then(response => response.json())
-      .then(data => {
-        setSearchID(data.searchId)
-    })
-  }, [])
-  // получить searchID
+    fetchingSearchId(setSearchId)
+  }, []);
 
   useEffect(() => {
-    fetch(`https://front-test.beta.aviasales.ru/tickets?searchId=${searchID}`)
-      .then(response => response.json())
-      .then(data => setTickets(data.tickets))
-  }, [searchID])
-  //zapros ticketы
+    fetchingTickets(searchId, setTickets)
+  }, [searchId])
 
   const changeTab = (num) => {
     let index = num - 1
@@ -222,7 +235,7 @@ function App() {
         toStartTime={formattedToStartTime}
         toFinishTime={flightToArrivalTime}
         flightToStops={flightTo.stops.join(', ')}
-        flightToStopsAmount={flightTo.stops.length}
+        flightToStopsAmount={getStopsText(flightTo.stops.length)}
 
         originFrom={flightFrom.origin}
         destinationFrom={flightFrom.destination}
@@ -230,7 +243,7 @@ function App() {
         fromStartTime={formattedFromStartTime}
         fromFinishTime={flightFromArrivalTime}
         flightFromStops={flightFrom.stops.join(', ')}
-        flightFromStopsAmount={flightFrom.stops.length}
+        flightFromStopsAmount={getStopsText(flightFrom.stops.length)}
       />
     )
   })
