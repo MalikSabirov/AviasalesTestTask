@@ -1,16 +1,20 @@
 import style from './style.module.scss'
 
-const Tabs = (props) => {
+const Tabs = ({
+  tabsData,
+  tabs,
+  changeTab
+}) => {
 
-  const tabsComponent = props.tabsData.map(item => {
+  const tabsComponent = tabsData.map(item => {
     return (
       <button 
         key={item.id} 
-        onClick={() => props.changeTab(item.id)}
+        onClick={() => changeTab(item.id)}
         className={`tabs-item ${item.isActive ? "activeTab" : ""}`}
       >
         {item.title}
-        {props.tabs}
+        {tabs}
       </button>
     )
   })

@@ -1,10 +1,13 @@
 import style from './style.module.scss'
 
-const NumberOfTransfers = (props) => {
-  const filterListItemComponent = props.NumberOfTransfers.map(item => {
+const NumberOfTransfers = ({
+  NumberOfTransfers, 
+  handleChange
+}) => {
+  const filterListItemComponent = NumberOfTransfers.map(item => {
     return (
       <li className={style.filterListItem} key={item.id}>
-        <input type="checkbox" checked={item.isChecked} onChange={() => props.handleChange(item.id)}/>
+        <input type="checkbox" checked={item.isChecked} onChange={() => handleChange(item.id)}/>
         <span>{item.title}</span>
       </li>
     )

@@ -10,47 +10,66 @@ const getStopsText = (stops) => {
   }
 }
 
-const Ticket = (props) => {
-  let flightToStopsAmountText = getStopsText(props.flightToStopsAmount)
-  let flightFromStopsAmountText = getStopsText(props.flightFromStopsAmount)
+const Ticket = ({
+  imgUrl,
+  price,
+
+  originTo,
+  destinationTo,
+  toStartTime,
+  toFinishTime,
+  durationTo,
+  flightToStops,
+  flightToStopsAmount,
+
+  originFrom,
+  destinationFrom,
+  fromStartTime,
+  fromFinishTime,
+  durationFrom,
+  flightFromStops,
+  flightFromStopsAmount,
+}) => {
+  let flightToStopsAmountText = getStopsText(flightToStopsAmount)
+  let flightFromStopsAmountText = getStopsText(flightFromStopsAmount)
 
   return (
     <div className={style.container}>
       <div className={style.header}>
-        <p>{props.price} Р</p>
+        <p>{price} Р</p>
 
-        <img src={props.imgUrl} alt="logo"/>
+        <img src={imgUrl} alt="logo"/>
       </div>
 
       <div className={style.flightInfo}>
         <dl className={style.flightInfoItem}>
-          <dt>{props.originTo} – {props.destinationTo}</dt>
-          <dd>{props.toStartTime} – {props.toFinishTime}</dd>
+          <dt>{originTo} – {destinationTo}</dt>
+          <dd>{toStartTime} – {toFinishTime}</dd>
         </dl>
 
         <dl className={style.flightInfoItem}>
           <dt>В пути</dt>
-          <dd>{props.durationTo}</dd>
+          <dd>{durationTo}</dd>
         </dl>
 
         <dl className={style.flightInfoItem}>
           <dt>{flightToStopsAmountText}</dt>
-          <dd>{props.flightToStops}</dd>
+          <dd>{flightToStops}</dd>
         </dl>
 
         <dl className={style.flightInfoItem}>
-          <dt>{props.originFrom} – {props.destinationFrom}</dt>
-          <dd>{props.fromStartTime} – {props.fromFinishTime}</dd>
+          <dt>{originFrom} – {destinationFrom}</dt>
+          <dd>{fromStartTime} – {fromFinishTime}</dd>
         </dl>
 
         <dl className={style.flightInfoItem}>
           <dt>В пути</dt>
-          <dd>{props.durationFrom}</dd>
+          <dd>{durationFrom}</dd>
         </dl>
 
         <dl className={style.flightInfoItem}>
           <dt>{flightFromStopsAmountText}</dt>
-          <dd>{props.flightFromStops}</dd>
+          <dd>{flightFromStops}</dd>
         </dl>
       </div>
     </div>
