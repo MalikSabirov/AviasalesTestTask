@@ -53,53 +53,63 @@ const fetchingTickets = (searchParam, setMethod) => {
   }
 }
 
-const TicketComponent = (ticket, id) => {
-  const flightTo = ticket.segments[0]
-  const flightFrom = ticket.segments[1]
+const getStopsText = (stops) => {
+  if (stops < 0) {
+    return ""
+  } else if (stops === 0) {
+    return "Без пересадок"
+  } else if (stops === 1) {
+    return "1 пересадка"
+  } else if (stops >= 2 && stops <= 4) {
+    return `${stops} пересадки`
+  } else {
+    return `${stops} пересадок`
+  }
+}
 
-  const imgUrl = `https://pics.avs.io/99/36/${ticket.carrier}.png`
+const normalizeData = (data) => {
+  let result = data.slice().map( item => {
+    const flightTo = item.segments[0]
+    const flightFrom = item.segments[1]
 
-  const durationToHours = Math.trunc(flightTo.duration / 60)
-  const durationToMinutes = flightTo.duration % 60
-  const durationTo = `${durationToHours}ч ${durationToMinutes}м`
+    const durationToHours = Math.trunc(flightTo.duration / 60)
+    const durationToMinutes = flightTo.duration % 60
 
-  const flightToTime = new Date(flightTo.date)
-  const flightFromTime = new Date(flightFrom.date)
-  const flightToArrivalTime = getArrivalTime(flightToTime, flightTo.duration)
-  const flightFromArrivalTime = getArrivalTime(flightFromTime, flightFrom.duration)
+    const durationFromInHours = Math.trunc(flightFrom.duration / 60)
+    const durationFromInMinutes = flightFrom.duration % 60
 
-  const formattedToStartTime = `${ getFormatedTime( flightToTime.getHours() ) }:${ getFormatedTime( flightToTime.getMinutes() ) }`
-  const formattedFromStartTime = `${ getFormatedTime( flightFromTime.getHours() ) }:${ getFormatedTime( flightFromTime.getMinutes() ) }`
+    const flightToTime = new Date(flightTo.date)
+    const flightToArrivalTime = getArrivalTime(flightToTime, flightTo.duration)
+    const flightFromTime = new Date(flightFrom.date)
+    const flightFromArrivalTime = getArrivalTime(flightFromTime, flightFrom.duration)
 
-  const flightTimeThere = `${formattedToStartTime} - ${flightToArrivalTime}`
-  const flightTimeBack = `${formattedFromStartTime} - ${flightFromArrivalTime}`
+    const formattedToStartTime = `${ getFormatedTime( flightToTime.getHours() ) }:${ getFormatedTime( flightToTime.getMinutes() ) }`
+    const formattedFromStartTime = `${ getFormatedTime( flightFromTime.getHours() ) }:${ getFormatedTime( flightFromTime.getMinutes() ) }`
 
-  const durationFromInHours = Math.trunc(flightFrom.duration / 60)
-  const durationFromInMinutes = flightFrom.duration % 60
-  const durationFrom = `${durationFromInHours}ч ${durationFromInMinutes}м`
+    return {
+      price: item.price,
+      carrier: item.carrier,
+      imgUrl: `https://pics.avs.io/99/36/${item.carrier}.png`,
 
-  const flightToStops = flightTo.stops
-  const flightFromStops = flightFrom.stops
+      flightTo: {
+        direction: `${flightTo.origin} - ${flightTo.destination}`,
+        duration: `${durationToHours}ч ${durationToMinutes}м`,
+        time: `${formattedToStartTime} - ${flightToArrivalTime}`,
+        stops: flightTo.stops.join(", "),
+        stopsNum: getStopsText(flightTo.stops.length)
+      },
 
-  return (
-    <Ticket 
-      price={ticket.price} 
-      imgUrl={imgUrl}
-      key={id}
+      flightFrom: {
+        direction: `${flightFrom.origin} - ${flightFrom.destination}`,
+        duration: `${durationFromInHours}ч ${durationFromInMinutes}м`,
+        time: `${formattedFromStartTime} - ${flightFromArrivalTime}`,
+        stops: flightFrom.stops.join(", "),
+        stopsNum: getStopsText(flightFrom.stops.length)
+      }
+    }
+  })
 
-      originTo={flightTo.origin}
-      destinationTo={flightTo.destination}
-      durationTo={durationTo}
-      flightTimeThere={flightTimeThere}
-      flightToStops={flightToStops.join(', ')}
-
-      originFrom={flightFrom.origin}
-      destinationFrom={flightFrom.destination}
-      durationFrom={durationFrom}
-      flightTimeBack={flightTimeBack}
-      flightFromStops={flightFromStops.join(', ')}
-    />
-  )
+  return result
 }
 
 function App() {
@@ -146,49 +156,7 @@ function App() {
       isChecked: false
     },
   ])
-
-  let priceSortedTickets = tickets.slice().sort((a, b) => a.price - b.price)
-  let durationSortedTickets = tickets.slice().sort((a, b) => a.segments[0].duration - b.segments[0].duration)
-
-  const filterStopsAmount = (sortedTickets) => {
-    for (let i = 0; i < numberOfTransfer.length; i++) {
-      if(numberOfTransfer[i].isChecked) {
-        switch (i) {
-          case 1:
-            return sortedTickets.filter(ticket => {
-              return (
-                ticket.segments[0].stops.length === 0 && ticket.segments[1].stops.length === 0
-              )
-            })
-          case 2:
-            return sortedTickets.filter(ticket => {
-              return (
-                ticket.segments[0].stops.length === 1 && ticket.segments[1].stops.length === 1
-              )
-            })
-          case 3:
-            return sortedTickets.filter(ticket => {
-              return (
-                ticket.segments[0].stops.length === 2 && ticket.segments[1].stops.length === 2
-              )
-            })
-          case 4:
-            return sortedTickets.filter(ticket => {
-              return (
-                ticket.segments[0].stops.length === 3 && ticket.segments[1].stops.length === 3
-              )
-            })
-          default: 
-            return sortedTickets
-        }
-      }
-    }
-  }
-
-  priceSortedTickets = filterStopsAmount(priceSortedTickets)
-  durationSortedTickets = filterStopsAmount(durationSortedTickets)
-
-  const tabs = [priceSortedTickets, durationSortedTickets]
+  
   const [activeTab, setActiveTab] = useState(0)
   const [showedTickets, setShowedTickets] = useState(5)
 
@@ -199,6 +167,8 @@ function App() {
   useEffect(() => {
     fetchingTickets(searchId, setTickets)
   }, [searchId])
+
+  const normalizedTickets = normalizeData(tickets)
 
   const changeTab = (num) => {
     setActiveTab(num - 1)
@@ -236,10 +206,6 @@ function App() {
     })
   }
 
-  tabs[activeTab].length = showedTickets;
-
-  const ticketsComponent = tabs[activeTab].map( (ticket, id) => TicketComponent(ticket, id) )
-
   return (
     <div className="app">
       <img className="logo" src={iLogo} alt="logo"/>
@@ -250,12 +216,23 @@ function App() {
         />
 
         <div className="right-container">
-         <Tabs 
+          <Tabs 
           changeTab={changeTab}
           tabsData={tabsData}
-        />
+          />
 
-        {ticketsComponent}
+          {normalizedTickets.map( (ticket, id) => {
+            return(
+              <Ticket 
+                price={ticket.price}
+                imgUrl={ticket.imgUrl}
+                key={id}
+
+                flightTo={ticket.flightTo}
+                flightFrom={ticket.flightFrom}
+              />
+            )
+          })}
 
         <button 
           className="button"
