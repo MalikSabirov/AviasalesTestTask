@@ -34,20 +34,6 @@ const getArrivalTime = (startDate, duration) => {
   return `${arrivalHours}:${arrivalMinutes}`
 }
 
-const getStopsText = (stops) => {
-  if (stops < 0) {
-    return ""
-  } else if (stops === 0) {
-    return "Без пересадок"
-  } else if (stops === 1) {
-    return "1 пересадка"
-  } else if (stops >= 2 && stops <= 4) {
-    return `${stops} пересадки`
-  } else {
-    return `${stops} пересадок`
-  }
-}
-
 const fetchingSearchId = (setMethod) => {
   fetch("https://front-test.beta.aviasales.ru/search")
   .then((response) => response.json())
@@ -65,6 +51,55 @@ const fetchingTickets = (searchParam, setMethod) => {
       .then((response) => response.json())
       .then((data) => setMethod(data.tickets));
   }
+}
+
+const TicketComponent = (ticket, id) => {
+  const flightTo = ticket.segments[0]
+  const flightFrom = ticket.segments[1]
+
+  const imgUrl = `https://pics.avs.io/99/36/${ticket.carrier}.png`
+
+  const durationToHours = Math.trunc(flightTo.duration / 60)
+  const durationToMinutes = flightTo.duration % 60
+  const durationTo = `${durationToHours}ч ${durationToMinutes}м`
+
+  const flightToTime = new Date(flightTo.date)
+  const flightFromTime = new Date(flightFrom.date)
+  const flightToArrivalTime = getArrivalTime(flightToTime, flightTo.duration)
+  const flightFromArrivalTime = getArrivalTime(flightFromTime, flightFrom.duration)
+
+  const formattedToStartTime = `${ getFormatedTime( flightToTime.getHours() ) }:${ getFormatedTime( flightToTime.getMinutes() ) }`
+  const formattedFromStartTime = `${ getFormatedTime( flightFromTime.getHours() ) }:${ getFormatedTime( flightFromTime.getMinutes() ) }`
+
+  const flightTimeThere = `${formattedToStartTime} - ${flightToArrivalTime}`
+  const flightTimeBack = `${formattedFromStartTime} - ${flightFromArrivalTime}`
+
+  const durationFromInHours = Math.trunc(flightFrom.duration / 60)
+  const durationFromInMinutes = flightFrom.duration % 60
+  const durationFrom = `${durationFromInHours}ч ${durationFromInMinutes}м`
+
+  const flightToStops = flightTo.stops
+  const flightFromStops = flightFrom.stops
+
+  return (
+    <Ticket 
+      price={ticket.price} 
+      imgUrl={imgUrl}
+      key={id}
+
+      originTo={flightTo.origin}
+      destinationTo={flightTo.destination}
+      durationTo={durationTo}
+      flightTimeThere={flightTimeThere}
+      flightToStops={flightToStops.join(', ')}
+
+      originFrom={flightFrom.origin}
+      destinationFrom={flightFrom.destination}
+      durationFrom={durationFrom}
+      flightTimeBack={flightTimeBack}
+      flightFromStops={flightFromStops.join(', ')}
+    />
+  )
 }
 
 function App() {
@@ -166,15 +201,14 @@ function App() {
   }, [searchId])
 
   const changeTab = (num) => {
-    let index = num - 1
-    setActiveTab(index)
+    setActiveTab(num - 1)
 
     setTabsData(prevState => {
       return prevState.map(item => {
-        if ( (item.id - 1) === index && !item.isActive ) {
+        if ( item.id === num && !item.isActive ) {
           item.isActive = !item.isActive
         }
-        if ( (item.id - 1) !== index && item.isActive) {
+        if ( item.id  !== num && item.isActive) {
           item.isActive = !item.isActive
         }
         return item
@@ -204,49 +238,7 @@ function App() {
 
   tabs[activeTab].length = showedTickets;
 
-  const ticketsComponents = tabs[activeTab].map( (ticket, id) => {
-    const flightTo = ticket.segments[0]
-    const flightFrom = ticket.segments[1]
-
-    const durationToHours = Math.trunc(flightTo.duration / 60)
-    const durationToMinutes = flightTo.duration % 60
-
-    const flightToTime = new Date(flightTo.date)
-    const flightFromTime = new Date(flightFrom.date)
-    const flightToArrivalTime = getArrivalTime(flightToTime, flightTo.duration)
-    const flightFromArrivalTime = getArrivalTime(flightFromTime, flightFrom.duration)
-    // massive otfarmatirovannyh dannyh doljen vozvrashat'
-
-    const formattedToStartTime = `${ getFormatedTime( flightToTime.getHours() ) }:${ getFormatedTime( flightToTime.getMinutes() ) }`
-    const formattedFromStartTime = `${ getFormatedTime( flightFromTime.getHours() ) }:${ getFormatedTime( flightFromTime.getMinutes() ) }`
-
-    const durationFromInHours = Math.trunc(flightFrom.duration / 60)
-    const durationFromInMinutes = flightFrom.duration % 60
-
-    return (
-      <Ticket 
-        price={ticket.price} 
-        imgUrl={`https://pics.avs.io/99/36/${ticket.carrier}.png`}
-        key={id}
-
-        originTo={flightTo.origin}
-        destinationTo={flightTo.destination}
-        durationTo={`${durationToHours}ч ${durationToMinutes}м`}
-        toStartTime={formattedToStartTime}
-        toFinishTime={flightToArrivalTime}
-        flightToStops={flightTo.stops.join(', ')}
-        flightToStopsAmount={getStopsText(flightTo.stops.length)}
-
-        originFrom={flightFrom.origin}
-        destinationFrom={flightFrom.destination}
-        durationFrom={`${durationFromInHours}ч ${durationFromInMinutes}м`}
-        fromStartTime={formattedFromStartTime}
-        fromFinishTime={flightFromArrivalTime}
-        flightFromStops={flightFrom.stops.join(', ')}
-        flightFromStopsAmount={getStopsText(flightFrom.stops.length)}
-      />
-    )
-  })
+  const ticketsComponent = tabs[activeTab].map( (ticket, id) => TicketComponent(ticket, id) )
 
   return (
     <div className="app">
@@ -263,7 +255,7 @@ function App() {
           tabsData={tabsData}
         />
 
-        {ticketsComponents}
+        {ticketsComponent}
 
         <button 
           className="button"
