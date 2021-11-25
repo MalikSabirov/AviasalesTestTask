@@ -4,35 +4,7 @@ import NumberOfTransfers from './components/NumberOfTransfers/NumberOfTransfers'
 import Tabs from './components/Tabs/Tabs';
 import Ticket from './components/Ticket/Ticket';
 import iLogo from './images/logo.svg'
-
-const getFormatedTime = (time) => {
-  if (time < 10) {
-    return "0" + time
-  } else {
-    return time
-  }
-}
-
-const getArrivalTime = (startDate, duration) => {
-  let startHour = startDate.getHours()
-  let startMinutes = startDate.getMinutes()
-
-  let startInMinutes = startHour * 60 + startMinutes
-  let arrivalInMinutes = startInMinutes + duration
-  let arrivalInHours = Math.trunc(arrivalInMinutes / 60)
-  
-  let arrivalHours = arrivalInHours;
-  let arrivalMinutes = arrivalInMinutes % 60
-
-  for (let i = 0; arrivalHours > 24; i++) {
-    arrivalHours -= 24
-  }
-
-  arrivalHours = getFormatedTime(arrivalHours)
-  arrivalMinutes = getFormatedTime(arrivalMinutes)
-
-  return `${arrivalHours}:${arrivalMinutes}`
-}
+import normalizeData from './functions/normalizeData';
 
 const fetchingSearchId = (setMethod) => {
   fetch("https://front-test.beta.aviasales.ru/search")
@@ -53,63 +25,17 @@ const fetchingTickets = (searchParam, setMethod) => {
   }
 }
 
-const getStopsText = (stops) => {
-  if (stops < 0) {
-    return ""
-  } else if (stops === 0) {
-    return "Без пересадок"
-  } else if (stops === 1) {
-    return "1 пересадка"
-  } else if (stops >= 2 && stops <= 4) {
-    return `${stops} пересадки`
-  } else {
-    return `${stops} пересадок`
-  }
+const sortByPrice = (arr) => {
+  return arr.slice().sort((a, b) => a.price - b.price )
 }
 
-const normalizeData = (data) => {
-  let result = data.slice().map( item => {
-    const flightTo = item.segments[0]
-    const flightFrom = item.segments[1]
+const sortByDuration = (arr) => {
+  return arr.sort( (a, b) => {
+    let averageA = (a.flightTo["durationInMinutes"] + a.flightFrom["durationInMinutes"]) / 2
+    let averageB = (b.flightTo["durationInMinutes"] + b.flightFrom["durationInMinutes"]) / 2
 
-    const durationToHours = Math.trunc(flightTo.duration / 60)
-    const durationToMinutes = flightTo.duration % 60
-
-    const durationFromInHours = Math.trunc(flightFrom.duration / 60)
-    const durationFromInMinutes = flightFrom.duration % 60
-
-    const flightToTime = new Date(flightTo.date)
-    const flightToArrivalTime = getArrivalTime(flightToTime, flightTo.duration)
-    const flightFromTime = new Date(flightFrom.date)
-    const flightFromArrivalTime = getArrivalTime(flightFromTime, flightFrom.duration)
-
-    const formattedToStartTime = `${ getFormatedTime( flightToTime.getHours() ) }:${ getFormatedTime( flightToTime.getMinutes() ) }`
-    const formattedFromStartTime = `${ getFormatedTime( flightFromTime.getHours() ) }:${ getFormatedTime( flightFromTime.getMinutes() ) }`
-
-    return {
-      price: item.price,
-      carrier: item.carrier,
-      imgUrl: `https://pics.avs.io/99/36/${item.carrier}.png`,
-
-      flightTo: {
-        direction: `${flightTo.origin} - ${flightTo.destination}`,
-        duration: `${durationToHours}ч ${durationToMinutes}м`,
-        time: `${formattedToStartTime} - ${flightToArrivalTime}`,
-        stops: flightTo.stops.join(", "),
-        stopsNum: getStopsText(flightTo.stops.length)
-      },
-
-      flightFrom: {
-        direction: `${flightFrom.origin} - ${flightFrom.destination}`,
-        duration: `${durationFromInHours}ч ${durationFromInMinutes}м`,
-        time: `${formattedFromStartTime} - ${flightFromArrivalTime}`,
-        stops: flightFrom.stops.join(", "),
-        stopsNum: getStopsText(flightFrom.stops.length)
-      }
-    }
+    return averageA - averageB;
   })
-
-  return result
 }
 
 function App() {
@@ -156,7 +82,7 @@ function App() {
       isChecked: false
     },
   ])
-  
+
   const [activeTab, setActiveTab] = useState(0)
   const [showedTickets, setShowedTickets] = useState(5)
 
@@ -206,6 +132,12 @@ function App() {
     })
   }
 
+  let sortedByPrice = sortByPrice(normalizedTickets)
+  let sortedByDuration = sortByDuration(normalizedTickets)
+
+  const tabs = [sortedByPrice, sortedByDuration]
+  tabs[activeTab].length = showedTickets;
+
   return (
     <div className="app">
       <img className="logo" src={iLogo} alt="logo"/>
@@ -221,7 +153,7 @@ function App() {
           tabsData={tabsData}
           />
 
-          {normalizedTickets.map( (ticket, id) => {
+          {tabs[activeTab].map( (ticket, id) => {
             return(
               <Ticket 
                 price={ticket.price}
