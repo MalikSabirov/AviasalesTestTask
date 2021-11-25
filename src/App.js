@@ -96,15 +96,18 @@ function App() {
 
   const normalizedTickets = normalizeData(tickets)
 
-  const changeTab = (num) => {
-    setActiveTab(num - 1)
+  const changeTab = (id) => {
+    setActiveTab(id - 1)
 
     setTabsData(prevState => {
       return prevState.map(item => {
-        if ( item.id === num && !item.isActive ) {
-          item.isActive = !item.isActive
+        if (item.id === id && !item.isActive) {
+          return {
+            ...item,
+            isActive: !item.isActive
+          }
         }
-        if ( item.id  !== num && item.isActive) {
+        if ( item.id  !== id && item.isActive) {
           item.isActive = !item.isActive
         }
         return item
@@ -135,8 +138,7 @@ function App() {
   let sortedByPrice = sortByPrice(normalizedTickets)
   let sortedByDuration = sortByDuration(normalizedTickets)
 
-  const tabs = [sortedByPrice, sortedByDuration]
-  tabs[activeTab].length = showedTickets;
+  let currentTickets = (activeTab === 0) ? sortedByPrice.slice(0, showedTickets) : sortedByDuration.slice(0, showedTickets)
 
   return (
     <div className="app">
@@ -149,11 +151,11 @@ function App() {
 
         <div className="right-container">
           <Tabs 
-          changeTab={changeTab}
-          tabsData={tabsData}
+            changeTab={changeTab}
+            tabsData={tabsData}
           />
 
-          {tabs[activeTab].map( (ticket, id) => {
+          {currentTickets.map( (ticket, id) => {
             return(
               <Ticket 
                 price={ticket.price}
