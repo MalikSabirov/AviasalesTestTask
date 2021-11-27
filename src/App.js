@@ -83,7 +83,7 @@ function App() {
     },
   ])
 
-  const [activeTab, setActiveTab] = useState(0)
+  const [activeTab, setActiveTab] = useState(tabsData[0].id)
   const [showedTickets, setShowedTickets] = useState(5)
 
   useEffect(() => {
@@ -97,7 +97,7 @@ function App() {
   const normalizedTickets = normalizeData(tickets)
 
   const changeTab = (id) => {
-    setActiveTab(id - 1)
+    setActiveTab(tabsData[id - 1].id)
 
     setTabsData(prevState => {
       return prevState.map(item => {
@@ -106,11 +106,12 @@ function App() {
             ...item,
             isActive: !item.isActive
           }
+        } else {
+          return {
+            ...item,
+            isActive: !item.isActive
+          }
         }
-        if ( item.id  !== id && item.isActive) {
-          item.isActive = !item.isActive
-        }
-        return item
       })
     })
   }
@@ -138,7 +139,14 @@ function App() {
   let sortedByPrice = sortByPrice(normalizedTickets)
   let sortedByDuration = sortByDuration(normalizedTickets)
 
-  let currentTickets = (activeTab === 0) ? sortedByPrice.slice(0, showedTickets) : sortedByDuration.slice(0, showedTickets)
+  let currentTickets
+  if (activeTab === 1) {
+    currentTickets = sortedByPrice.slice(0, showedTickets)
+  } else if (activeTab === 2) {
+    currentTickets = sortedByDuration.slice(0, showedTickets)
+  } else {
+    currentTickets = []
+  }
 
   return (
     <div className="app">
