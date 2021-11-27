@@ -124,14 +124,12 @@ function App() {
             ...item,
             isChecked: !item.isChecked
           }
-        }
-        if (item.id !== id && item.isChecked === true) {
+        } else {
           return {
             ...item,
             isChecked: false
           }
         }
-        return item
       })
     })
   }
