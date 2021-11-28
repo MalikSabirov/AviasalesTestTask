@@ -143,6 +143,7 @@ function App() {
   } else if (activeTab === 2) {
     currentTickets = sortedByDuration.slice(0, showedTickets)
   } else {
+    console.error("current Tickets undefined")
     currentTickets = []
   }
 
