@@ -29,7 +29,7 @@ function App() {
     {
       id: 1,
       title: "Все",
-      isChecked: false
+      isChecked: true
     },
     {
       id: 2,
@@ -107,8 +107,6 @@ function App() {
 
   let sortedByPrice = sortByPrice( filterByStops(normalizedTickets, numberOfTransfer) )
   let sortedByDuration = sortByDuration( filterByStops(normalizedTickets, numberOfTransfer) )
-
-  console.log("normalizedTickets: ", normalizedTickets)
 
   let currentTickets
   if (activeTab === 1) {
