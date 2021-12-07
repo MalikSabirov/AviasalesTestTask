@@ -5,38 +5,8 @@ import Tabs from './components/Tabs/Tabs';
 import Ticket from './components/Ticket/Ticket';
 import iLogo from './images/logo.svg'
 import normalizeData from './functions/normalizeData';
-
-const fetchingSearchId = (setMethod) => {
-  fetch("https://front-test.beta.aviasales.ru/search")
-  .then((response) => response.json())
-  .then((data) => data.searchId)
-  .then((searchId) => {
-    setMethod(searchId);
-  });
-}
-
-const fetchingTickets = (searchParam, setMethod) => {
-  if(searchParam !== undefined) {
-    fetch(
-      `https://front-test.beta.aviasales.ru/tickets?searchId=${searchParam}`
-    )
-      .then((response) => response.json())
-      .then((data) => setMethod(data.tickets));
-  }
-}
-
-const sortByPrice = (arr) => {
-  return arr.slice().sort((a, b) => a.price - b.price )
-}
-
-const sortByDuration = (arr) => {
-  return arr.sort( (a, b) => {
-    let averageA = (a.flightTo["durationInMinutes"] + a.flightFrom["durationInMinutes"]) / 2
-    let averageB = (b.flightTo["durationInMinutes"] + b.flightFrom["durationInMinutes"]) / 2
-
-    return averageA - averageB;
-  })
-}
+import {sortByPrice, sortByDuration, filterByStops} from './functions/sortAndFilter'
+import {fetchingSearchId, fetchingTickets} from './functions/fetching'
 
 function App() {
   const [searchId, setSearchId] = useState()
@@ -59,27 +29,31 @@ function App() {
     {
       id: 1,
       title: "Все",
-      isChecked: true
+      isChecked: false
     },
     {
       id: 2,
       title: "Без пересадок",
-      isChecked: false
+      isChecked: false,
+      stops: 0
     },
     {
       id: 3,
       title: "1 пересадка",
-      isChecked: false
+      isChecked: false,
+      stops: 1
     },
     {
       id: 4,
       title: "2 пересадки",
-      isChecked: false
+      isChecked: false,
+      stops: 2
     },
     {
       id: 5,
       title: "3 пересадки",
-      isChecked: false
+      isChecked: false,
+      stops: 3
     },
   ])
 
@@ -119,23 +93,22 @@ function App() {
   const handleChange = (id) => {
     setNumberOfTransfer(prevState => {
       return prevState.map(item => {
-        if (item.id === id && !item.isChecked) {
+        if (item.id === id) {
           return {
             ...item,
             isChecked: !item.isChecked
           }
         } else {
-          return {
-            ...item,
-            isChecked: false
-          }
+          return item
         }
       })
     })
   }
 
-  let sortedByPrice = sortByPrice(normalizedTickets)
-  let sortedByDuration = sortByDuration(normalizedTickets)
+  let sortedByPrice = sortByPrice( filterByStops(normalizedTickets, numberOfTransfer) )
+  let sortedByDuration = sortByDuration( filterByStops(normalizedTickets, numberOfTransfer) )
+
+  console.log("normalizedTickets: ", normalizedTickets)
 
   let currentTickets
   if (activeTab === 1) {

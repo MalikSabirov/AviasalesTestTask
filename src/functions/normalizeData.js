@@ -72,7 +72,8 @@ const normalizeData = (data) => {
         durationInMinutes: flightTo.duration,
         time: `${formattedToStartTime} - ${flightToArrivalTime}`,
         stops: flightTo.stops.join(", "),
-        stopsNum: getStopsText(flightTo.stops.length)
+        stopsTitle: getStopsText(flightTo.stops.length),
+        stopsNum: flightTo.stops.length
       },
 
       flightFrom: {
@@ -81,7 +82,8 @@ const normalizeData = (data) => {
         durationInMinutes: flightFrom.duration,
         time: `${formattedFromStartTime} - ${flightFromArrivalTime}`,
         stops: flightFrom.stops.join(", "),
-        stopsNum: getStopsText(flightFrom.stops.length)
+        stopsTitle: getStopsText(flightFrom.stops.length),
+        stopsNum: flightFrom.stops.length
       }
     }
   })

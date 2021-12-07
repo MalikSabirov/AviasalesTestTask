@@ -26,7 +26,7 @@ const Ticket = ({
         </dl>
 
         <dl className={style.flightInfoItem}>
-          <dt>{flightTo.stopsNum}</dt>
+          <dt>{flightTo.stopsTitle}</dt>
           <dd>{flightTo.stops}</dd>
         </dl>
 
@@ -41,7 +41,7 @@ const Ticket = ({
         </dl>
 
         <dl className={style.flightInfoItem}>
-          <dt>{flightFrom.stopsNum}</dt>
+          <dt>{flightFrom.stopsTitle}</dt>
           <dd>{flightFrom.stops}</dd>
         </dl>
       </div>
