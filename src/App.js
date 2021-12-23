@@ -69,8 +69,9 @@ function App() {
       fetchingTickets(searchId).then(tickets => setTickets(tickets))
     }
   }, [searchId])
-
-  const normalizedTickets = normalizeData(tickets)
+  // effector library
+  // useMemo depends of tickets 
+  const normalizedTickets = useMemo(() => normalizeData(tickets), [tickets])
 
   const changeTab = (id) => {
     setActiveTab(id)
@@ -82,11 +83,10 @@ function App() {
             ...item,
             isActive: !item.isActive
           }
-        } else {
-          return {
-            ...item,
-            isActive: !item.isActive
-          }
+        } 
+        return {
+          ...item,
+          isActive: !item.isActive
         }
       })
     })
@@ -118,13 +118,11 @@ function App() {
     [],
   )
 
-  const filteredByStops = filterByStops(normalizedTickets, numberOfTransfer)
-  const sortedByPrice = sortByPrice(filteredByStops)
-  const sortedByDuration = sortByDuration(filteredByStops)
+  const filteredByStops = useMemo(() => filterByStops(normalizedTickets, numberOfTransfer), [normalizedTickets, numberOfTransfer]) 
+  const sortedByPrice = useMemo(() => sortByPrice(filteredByStops), [filteredByStops])
+  const sortedByDuration = useMemo(() => sortByDuration(filteredByStops), [filteredByStops])
 
-  // useMemo || useCallBack
   const currentTickets = useMemo(() => {
-    console.log("current tickets render")
     if (activeTab === 1) {
       return sortedByPrice.slice(0, showedTickets)
     } else if (activeTab === 2) {
@@ -133,7 +131,7 @@ function App() {
       console.error("current Tickets undefined")
       return []
     }
-  }, [filteredByStops])
+  }, [activeTab, showedTickets, sortedByDuration, sortedByPrice])
 
   return (
     <div className="app">

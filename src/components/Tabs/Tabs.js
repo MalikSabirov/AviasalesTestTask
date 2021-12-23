@@ -13,7 +13,6 @@ const Tabs = ({
   tabsData,
   changeTab
 }) => {
-
   return(
     <div className={style.container}>
       {tabsData.map(item => {
