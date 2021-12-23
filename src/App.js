@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useMemo, useCallback} from 'react'
 import './App.scss';
 import NumberOfTransfers from './components/NumberOfTransfers/NumberOfTransfers';
 import Tabs from './components/Tabs/Tabs';
@@ -57,21 +57,23 @@ function App() {
     },
   ])
 
-  const [activeTab, setActiveTab] = useState(tabsData[0].id)
+  const [activeTab, setActiveTab] = useState(1)
   const [showedTickets, setShowedTickets] = useState(5)
 
   useEffect(() => {
-    fetchingSearchId(setSearchId)
+    fetchingSearchId().then( (searchId) => setSearchId(searchId))
   }, []);
 
   useEffect(() => {
-    fetchingTickets(searchId, setTickets)
+    if(searchId) {
+      fetchingTickets(searchId).then(tickets => setTickets(tickets))
+    }
   }, [searchId])
 
   const normalizedTickets = normalizeData(tickets)
 
   const changeTab = (id) => {
-    setActiveTab(tabsData[id - 1].id)
+    setActiveTab(id)
 
     setTabsData(prevState => {
       return prevState.map(item => {
@@ -90,33 +92,48 @@ function App() {
     })
   }
 
-  const handleChange = (id) => {
-    setNumberOfTransfer(prevState => {
-      return prevState.map(item => {
-        if (item.id === id) {
-          return {
-            ...item,
-            isChecked: !item.isChecked
+  // dobavit' chtoby pustoi ne byl 
+  // let isAllNotChecked = numberOfTransfer.every(item => item.isChecked === false)
+  // // let amountOfChecks = numberOfTransfer.reduce((acc, current) => current.isChecked ? acc + 1 : acc, 0)
+  // let amountOfChecks = numberOfTransfer.reduce((acc, current) => current.isChecked ? acc + 1 : acc, 0)
+  // useEffect(() => {
+  //   console.log(isAllNotChecked)
+  // }, [isAllNotChecked])
+
+
+  const handleChange = useCallback(
+    (id) => {
+      setNumberOfTransfer(prevState => {
+        return prevState.map(item => {
+          if (item.id === id) {
+            return {
+              ...item,
+              isChecked: !item.isChecked
+            }
           }
-        } else {
           return item
-        }
+        })
       })
-    })
-  }
+    },
+    [],
+  )
 
-  let sortedByPrice = sortByPrice( filterByStops(normalizedTickets, numberOfTransfer) )
-  let sortedByDuration = sortByDuration( filterByStops(normalizedTickets, numberOfTransfer) )
+  const filteredByStops = filterByStops(normalizedTickets, numberOfTransfer)
+  const sortedByPrice = sortByPrice(filteredByStops)
+  const sortedByDuration = sortByDuration(filteredByStops)
 
-  let currentTickets
-  if (activeTab === 1) {
-    currentTickets = sortedByPrice.slice(0, showedTickets)
-  } else if (activeTab === 2) {
-    currentTickets = sortedByDuration.slice(0, showedTickets)
-  } else {
-    console.error("current Tickets undefined")
-    currentTickets = []
-  }
+  // useMemo || useCallBack
+  const currentTickets = useMemo(() => {
+    console.log("current tickets render")
+    if (activeTab === 1) {
+      return sortedByPrice.slice(0, showedTickets)
+    } else if (activeTab === 2) {
+      return sortedByDuration.slice(0, showedTickets)
+    } else {
+      console.error("current Tickets undefined")
+      return []
+    }
+  }, [filteredByStops])
 
   return (
     <div className="app">

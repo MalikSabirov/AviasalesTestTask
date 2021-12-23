@@ -1,4 +1,3 @@
-
 export const sortByPrice = (arr) => {
   return arr.slice().sort((a, b) => a.price - b.price )
 }
@@ -15,14 +14,13 @@ export const sortByDuration = (arr) => {
 export const filterByStops = (arr, stopsArr) => {
   let tempArr = []
 
-  for (let i = 0; i < stopsArr.length; i++) {
-
-    if (stopsArr[i].isChecked) {
-      if (i === 0) {
-        tempArr = [...arr]
-      } else {
+  if (stopsArr[0].isChecked) {
+    tempArr = [...arr]
+  } else {
+    for (let i = 1; i < stopsArr.length; i++) {
+      if(stopsArr[i].isChecked) {
         let stopsNum = stopsArr[i].stops
-
+  
         for (let i = 0; i < arr.length; i++) {
           if( (arr[i].flightTo.stopsNum === stopsNum || 
               arr[i].flightFrom.stopsNum === stopsNum) &&
